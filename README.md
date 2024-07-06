@@ -128,7 +128,8 @@ This is commented out. -->
 <!-- Authors -->
 ## Authors
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - krittiphong2019@gmail.com
+Krittiphong Manachamni - [@k_manachamni](https://twitter.com/k_manachamni) - krittiphong2019@gmail.com
+Supanut
 
 Project Link: [https://github.com/Ne0EX/pm2.5-forecasting](https://github.com/Ne0EX/pm2.5-forecasting)
 
