@@ -1,157 +1,118 @@
-<!-- PROJECT LOGO -->
-<br />
-<p align="center">
-  <a href="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vecteezy.com%2Ffree-vector%2Fpm2-5&psig=AOvVaw0NxmZTeF6TCt_zlOLigNej&ust=1720353331753000&source=images&cd=vfe&opi=89978449&ved=0CA8QjRxqFwoTCMDKm96tkocDFQAAAAAdAAAAABAE">
-    <img src="images/gators.jpg" alt="Logo" width="150" height="150">
-  </a>
+# PM2.5 Spatio-Temporal Forecasting using Deep Learning
 
-  <h3 align="center">PM2.5 Spatio Temporal Forecasting using Deep Learning</h3>
+This project aims to predict PM2.5 (Particulate Matter 2.5 microns) concentrations using a deep learning approach, treating spatio-temporal data as image-like sequences. The current model utilizes a Convolutional LSTM (ConvLSTM) network. Data is sourced from Air4Thai, provided by the Pollution Control Department (PCD) of Thailand.
 
-  <p align="center">
-    A README template to jumpstart your projects!
-    <br />
-    <a href="https://github.com/catiaspsilva/README-template/blob/main/images/docs.txt"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="#usage">View Demo</a>
-    ·
-    <a href="https://github.com/Ne0EX/pm2.5-forecasting/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/Ne0EX/pm2.5-forecasting/issues">Request Feature</a>
-  </p>
-</p>
-
-
-
-<!-- TABLE OF CONTENTS -->
-<details open="open">
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#dependencies">Dependencies</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#authors">Authors</a></li>
-    <li><a href="#acknowledgements">Acknowledgements</a></li>
-  </ol>
-</details>
-
-
-
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 
-We present a spatio-temporal model based on a deep learning approach for PM2.5 concentration prediction via an image-like approach at a country-wide level.
+-   **Goal**: To develop a model for spatio-temporal prediction of PM2.5 concentrations.
+-   **Model**: The core model is based on ConvLSTM layers, designed to capture both spatial relationships and temporal dependencies from PM2.5 data structured in a grid format.
+-   **Data Source**: Historical PM2.5 data is obtained from the [Air4Thai website](http://air4thai.pcd.go.th).
 
-[pm2.5-forecasting](https://github.com/Ne0EX/pm2.5-forecasting)
-
-You can include tables or images to summarize your results when and if appropriate.
-
-<!-- GETTING STARTED -->
 ## Getting Started
-
-In this section you should provide instructions on how to use this repository to recreate your project locally.
 
 ### Dependencies
 
-Here, list all libraries, packages and other dependencies that need to be installed to run your project. Include library versions and how they should be installed if a special requirement is needed.
+-   **Python**: Python 3.8+ is recommended.
+-   **Packages**: All required Python packages are listed in `requirements.txt`. Key dependencies include TensorFlow, Pandas, NumPy, Scikit-learn, Requests, and Matplotlib.
 
-For example, this is how you would list them:
-* Tensorflow 2.16.1
-  ```sh
-  pip install tensorflow
-  ```
-* OpenCV 4.5.2
-  ```sh
-  conda install -c conda-forge opencv
-  ```
+### Installation & Setup
 
-### Installation
+1.  **Clone the Repository**:
+    ```sh
+    git clone https://github.com/Ne0EX/pm2.5-forecasting.git
+    cd pm2.5-forecasting
+    ```
 
-1. Clone the repo
-   ```sh
-   git clone https://github.com/Ne0EX/pm2.5-forecasting
-   ```
-2. Setup (and activate) your environment
-  ```sh
-  conda env create -f requirements.yml
-  ```
+2.  **Set up Python Environment and Install Dependencies**:
+    It is recommended to use a virtual environment:
+    ```sh
+    python -m venv venv
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    ```
+    Then, install the required packages:
+    ```sh
+    pip install -r requirements.txt
+    ```
 
-<!-- USAGE EXAMPLES -->
+3.  **Data Download**:
+    The historical PM2.5 data (2011-2020) needs to be downloaded from Air4Thai. This process is automated:
+    -   Running the training script `python train.py` will automatically trigger the download and extraction of historical data into the `data/historical_pm25/` directory.
+    -   Alternatively, you can download the data by running the data loader script directly:
+        ```sh
+        python data_utils/loader.py
+        ```
+    This will create the `data/historical_pm25` directory and populate it with Excel files.
+
 ## Usage
 
-Use this space to show useful examples of how a project can be used. For course projects, include which file to execute and the format of any input variables.
+### Training the Model
 
-Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+1.  **Run the Training Script**:
+    ```sh
+    python train.py
+    ```
+2.  **Process**: This script performs the following steps:
+    -   Loads the historical PM2.5 data (downloading it if not already present).
+    -   Preprocesses the data: This includes cleaning, interpolation, scaling (MinMax scaling by default), and mapping station data to a 2D grid.
+    -   Saves the fitted data scaler to `logs/data_scaler.joblib`.
+    -   Builds the ConvLSTM model as defined in `models/pm25_model.py`.
+    -   Splits the data into training and validation sets.
+    -   Trains the model using the prepared sequences.
+    -   Saves the best model checkpoints (based on validation loss) to the `logs/weights/` directory (e.g., `pm25_convlstm_YYYYMMDD-HHMMSS_best.keras`).
+    -   Generates TensorBoard logs in `logs/tensorboard/` for monitoring training progress.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+3.  **Monitor with TensorBoard (Optional)**:
+    To visualize training metrics, losses, and model graphs:
+    ```sh
+    tensorboard --logdir logs/tensorboard
+    ```
+    Open the URL provided by TensorBoard (usually `http://localhost:6006/`) in your web browser.
 
-<!-- ROADMAP -->
-## Roadmap
+### Making Predictions & Evaluation
 
-See the [open issues](https://github.com/catiaspsilva/README-template/issues) for a list of proposed features (and known issues).
+1.  **Run the Prediction Script**:
+    ```sh
+    python predict.py
+    ```
+    This script automatically uses the latest trained model found in `logs/weights/`.
 
-<!-- CONTRIBUTING -->
-## Contributing
+2.  **Process**: This script performs the following:
+    -   Loads the data scaler from `logs/data_scaler.joblib`.
+    -   Loads a test dataset (currently uses a portion of the historical data; this should be a dedicated, unseen dataset in a production setup).
+    -   Preprocesses the test data using the loaded scaler and maps it to the grid format.
+    -   Creates input sequences for the model from the test data.
+    -   Loads the latest trained ConvLSTM model from `logs/weights/`.
+    -   Makes predictions on the test sequences.
+    -   Attempts to inverse-transform the predictions and true values back to their original PM2.5 scale (with a note on current simplifications in this process).
+    -   Calculates and prints evaluation metrics (RMSE and MAE).
+    -   Saves example plots comparing true and predicted values for a sample sequence to `logs/predictions/plots/`.
 
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+## Project Structure
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request 😋
+-   `data_utils/loader.py`: Contains functions for data fetching (Air4Thai historical data), loading data from Excel files, preprocessing (cleaning, interpolation, scaling), mapping station data to a grid, and creating input/output sequences for the model.
+-   `models/pm25_model.py`: Defines the neural network architecture (currently a ConvLSTM model).
+-   `train.py`: Main script for training the PM2.5 forecasting model. Handles data loading, preprocessing, model building, training, and saving artifacts.
+-   `predict.py`: Main script for making predictions using a trained model, evaluating its performance, and generating sample visualizations.
+-   `requirements.txt`: Lists all Python package dependencies.
+-   `logs/`: This directory is created to store:
+    -   `weights/`: Saved model checkpoints (Keras files).
+    -   `tensorboard/`: Logs for TensorBoard visualization.
+    -   `predictions/plots/`: Output plots from `predict.py`.
+    -   `data_scaler.joblib`: The scaler object fitted on the training data.
+-   `data/`: This directory is created to store:
+    -   `historical_pm25/`: Downloaded and extracted historical PM2.5 Excel files.
+    -   `hourly_pm25/`: (Currently unused by `train.py`/`predict.py` but intended for recent hourly data) Cached data from Air4Thai API calls.
+-   `README.md`: This file.
 
+## Roadmap / Future Work
 
-<!-- LICENSE -->
+The following are potential areas for improvement and future development:
 
-<!-- 
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-This is commented out. -->
-
-<!-- Authors -->
-## Authors
-
-Krittiphong Manachamni - [@k_manachamni](https://twitter.com/k_manachamni) - krittiphong2019@gmail.com
-
-
-Supanut
-
-Project Link: [https://github.com/Ne0EX/pm2.5-forecasting](https://github.com/Ne0EX/pm2.5-forecasting)
-
-
-<!-- ACKNOWLEDGEMENTS -->
-
-<!-- 
-## Acknowledgements
-
-You can acknowledge any individual, group, institution or service.
-* [Catia Silva](https://faculty.eng.ufl.edu/catia-silva/)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Img Shields](https://shields.io)
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Pages](https://pages.github.com)
-* [Animate.css](https://daneden.github.io/animate.css)
-* [Loaders.css](https://connoratherton.com/loaders)
-* [Slick Carousel](https://kenwheeler.github.io/slick)
-This is commented out. -->
-
-## Thank you
-
-<!-- If this is useful: [![Buy me a coffee](https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-1.svg)](https://www.buymeacoffee.com/catiaspsilva) -->
+-   **Station-to-Grid Mapping**: Implement a more sophisticated station-to-grid mapping strategy using actual geographic coordinates of PM2.5 monitoring stations and techniques like kriging or inverse distance weighting for interpolation onto the grid. The current naive sequential mapping is a placeholder.
+-   **Inverse Scaling**: Improve the `inverse_transform_grid_data` function in `predict.py` to accurately map grid cell predictions back to station-specific PM2.5 values, considering the per-station scaling applied during preprocessing.
+-   **Data Augmentation**: Explore methods for augmenting the spatio-temporal data.
+-   **Model Architecture**: Experiment with different neural network architectures, hyperparameter tuning, and attention mechanisms.
+-   **Test Data**: Implement a robust test data splitting strategy (e.g., a dedicated hold-out period or specific geographical regions) for more reliable model evaluation on completely unseen future data.
+-   **External Features**: Incorporate other relevant data sources, such as meteorological data (wind speed/direction, temperature, humidity), traffic data, or satellite imagery, which can influence PM2.5 concentrations.
+-   **Configuration Management**: Introduce configuration files (e.g., YAML or JSON) to manage parameters for data processing, model architecture, and training/prediction, instead of hardcoding them in scripts.
+-   **API Integration**: Update or ensure robustness of `fetch_hourly_data` for real-time or near real-time data ingestion if the project moves towards operational forecasting.

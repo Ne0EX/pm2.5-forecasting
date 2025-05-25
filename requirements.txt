@@ -1,6 +1,9 @@
+joblib
+matplotlib
 numpy
 pandas
-tqdm 
-matplotlib
-scikit-image 
+requests==2.32.3
+scikit-image
+scikit-learn
 tensorflow
+tqdm
